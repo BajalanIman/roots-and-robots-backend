@@ -4,6 +4,8 @@ CREATE TABLE "TreeView" (
     "start_seconds" INTEGER NOT NULL,
     "start_milliseconds" TEXT NOT NULL,
     "duration" INTEGER NOT NULL,
+    "minutes" INTEGER NOT NULL,
+    "seconds" INTEGER NOT NULL,
     "tree_id" INTEGER NOT NULL,
     "video_id" INTEGER NOT NULL,
 
@@ -35,16 +37,42 @@ CREATE TABLE "Tree" (
     "year_planted" INTEGER,
     "comment" TEXT,
     "odmf_id" INTEGER,
+    "tree_plot" INTEGER,
+    "tree_letter" TEXT,
     "plot_id" INTEGER NOT NULL,
 
     CONSTRAINT "Tree_pkey" PRIMARY KEY ("tree_id")
 );
 
 -- CreateTable
+CREATE TABLE "SoilSample" (
+    "id" SERIAL NOT NULL,
+    "plot_id" INTEGER NOT NULL,
+    "depth" INTEGER,
+    "location" VARCHAR(100),
+    "repetition" INTEGER,
+    "x_coord" DECIMAL(12,4),
+    "y_coord" DECIMAL(12,4),
+
+    CONSTRAINT "SoilSample_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "SoilVariable" (
+    "id" SERIAL NOT NULL,
+    "soil_sample_id" INTEGER NOT NULL,
+    "variable_name" VARCHAR(100) NOT NULL,
+    "value" DECIMAL(10,4) NOT NULL,
+
+    CONSTRAINT "SoilVariable_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Plot" (
     "plot_id" SERIAL NOT NULL,
-    "plot_border" TEXT,
-    "plot_information" VARCHAR(150),
+    "plot_border" JSONB,
+    "plot_information" VARCHAR(1000),
+    "plot_name" VARCHAR(150),
     "area_id" INTEGER NOT NULL,
 
     CONSTRAINT "Plot_pkey" PRIMARY KEY ("plot_id")
@@ -53,8 +81,8 @@ CREATE TABLE "Plot" (
 -- CreateTable
 CREATE TABLE "Area" (
     "area_id" SERIAL NOT NULL,
-    "area_name" VARCHAR(50),
-    "area_information" VARCHAR(150),
+    "area_name" VARCHAR(200),
+    "area_information" VARCHAR(1000),
 
     CONSTRAINT "Area_pkey" PRIMARY KEY ("area_id")
 );
@@ -72,6 +100,18 @@ CREATE TABLE "TreeStatus" (
 );
 
 -- CreateTable
+CREATE TABLE "User" (
+    "user_id" SERIAL NOT NULL,
+    "username" VARCHAR(50) NOT NULL,
+    "email" VARCHAR(100) NOT NULL,
+    "password" VARCHAR(255) NOT NULL,
+    "full_name" VARCHAR(100),
+    "role" VARCHAR(50) DEFAULT 'user',
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("user_id")
+);
+
+-- CreateTable
 CREATE TABLE "AreaAdmins" (
     "area_admins_id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
@@ -84,7 +124,13 @@ CREATE TABLE "AreaAdmins" (
 CREATE UNIQUE INDEX "Video_video_url_id_key" ON "Video"("video_url_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Tree_tree_no_key" ON "Tree"("tree_no");
+CREATE UNIQUE INDEX "Tree_plot_id_tree_no_key" ON "Tree"("plot_id", "tree_no");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- AddForeignKey
 ALTER TABLE "TreeView" ADD CONSTRAINT "TreeView_tree_id_fkey" FOREIGN KEY ("tree_id") REFERENCES "Tree"("tree_id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -94,6 +140,12 @@ ALTER TABLE "TreeView" ADD CONSTRAINT "TreeView_video_id_fkey" FOREIGN KEY ("vid
 
 -- AddForeignKey
 ALTER TABLE "Tree" ADD CONSTRAINT "Tree_plot_id_fkey" FOREIGN KEY ("plot_id") REFERENCES "Plot"("plot_id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SoilSample" ADD CONSTRAINT "SoilSample_plot_id_fkey" FOREIGN KEY ("plot_id") REFERENCES "Plot"("plot_id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SoilVariable" ADD CONSTRAINT "SoilVariable_soil_sample_id_fkey" FOREIGN KEY ("soil_sample_id") REFERENCES "SoilSample"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Plot" ADD CONSTRAINT "Plot_area_id_fkey" FOREIGN KEY ("area_id") REFERENCES "Area"("area_id") ON DELETE CASCADE ON UPDATE CASCADE;
