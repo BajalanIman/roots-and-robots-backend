@@ -9,9 +9,9 @@ const prisma = new PrismaClient();
 
 app.use(
   cors({
-    // origin: "https://https://roots-and-robots.netlify.app/",
-    // methods: ["GET", "POST", "PUT", "DELETE"],
-    // credentials: true,
+    origin: "https://https://roots-robots.netlify.app/",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
   })
 );
 app.use(express.static("public"));
