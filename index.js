@@ -158,7 +158,7 @@ app.post("/api/plots", async (req, res) => {
           plot_information, 
           area_id, 
           plot_border
-        ) VALUES ($1, $2, $3, ST_SetSRID(ST_GeomFromGeoJSON($4), 4326))
+        ) VALUES ($1, $2, $3, $4)
         RETURNING plot_id`,
         [plot_name, plot_information, area_id, JSON.stringify(geometry)]
       );
@@ -207,7 +207,7 @@ app.get("/api/plots", async (req, res) => {
         plot_name,
         plot_information,
         area_id,
-        ST_AsGeoJSON(plot_border)::json AS geojson
+        plot_border AS geojson
       FROM "Plot"
     `;
 

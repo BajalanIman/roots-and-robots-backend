@@ -85,7 +85,7 @@ model SoilVariable {
 
 model Plot {
   plot_id          Int        @id @default(autoincrement())
-  plot_border      Unsupported("geometry")?    // Requires PostGIS extension
+  plot_border      plot_border Json? //Unsupported("geometry")?    // Requires PostGIS extension
   plot_information String?    @db.VarChar(1000)
   plot_name        String?    @db.VarChar(150)
   area_id          Int
